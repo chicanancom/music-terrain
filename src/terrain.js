@@ -17,18 +17,28 @@ export const params = {
     wireframe: true,
     colorHigh: '#ff00cc',
     colorLow: '#00ccff',
+    width: 300,
+    depth: 300,
+    segments: 24,
+    audioStrength: 60
 };
 
 const cHigh = new THREE.Color(params.colorHigh);
 const cLow = new THREE.Color(params.colorLow);
 
 export function createTerrain(scene) {
-    const width = 250;
-    const depth = 250;
-    const widthSegments = 12;
-    const depthSegments = 12;
+    // Cleanup if already exists
+    if (mesh) {
+        scene.remove(mesh);
+        geometry.dispose();
+        mesh.material.dispose();
+    }
 
-    geometry = new THREE.PlaneGeometry(width, depth, widthSegments, depthSegments);
+    const width = params.width;
+    const depth = params.depth;
+    const segments = params.segments;
+
+    geometry = new THREE.PlaneGeometry(width, depth, segments, segments);
     geometry.rotateX(-Math.PI / 2);
 
     const count = geometry.attributes.position.count;
@@ -41,8 +51,11 @@ export function createTerrain(scene) {
 
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
-    for (let i = 0; i <= depthSegments; i++) {
-        terrainHistory.push(new Array(widthSegments + 1).fill(0));
+
+    // Reset history
+    terrainHistory.length = 0;
+    for (let i = 0; i <= segments; i++) {
+        terrainHistory.push(new Array(segments + 1).fill(0));
     }
 
     return mesh;
@@ -100,9 +113,9 @@ export function updateTerrain(frequencyData, deltaTime) {
 
             const audioVal = audioRow ? audioRow[x] : 0;
 
-            height += audioVal * 60;
+            height += audioVal * params.audioStrength;
 
-            positions.setZ(index, height);
+            positions.setY(index, height);
 
             // Colors
             const alpha = (height + 20) / (params.heightScale + 40);

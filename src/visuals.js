@@ -15,8 +15,8 @@ export function setupScene(container) {
         0.1,
         1000
     );
-    camera.position.set(0, -15, 70);
-    camera.lookAt(0, 0, -20);
+    camera.position.set(0, 50, 100);
+    camera.lookAt(0, -10, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -24,19 +24,18 @@ export function setupScene(container) {
     renderer.toneMapping = THREE.ReinhardToneMapping;
     container.appendChild(renderer.domElement);
 
-    // Add Controls
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, -10, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    // Post Processing
     const renderScene = new RenderPass(scene, camera);
 
     const bloomPass = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        1.5, // strength
-        0.4, // radius
-        0.1 // threshold
+        1.5,
+        0.4,
+        0.1
     );
     bloomPass.strength = 1.5;
     bloomPass.radius = 0;
@@ -46,11 +45,9 @@ export function setupScene(container) {
     composer.addPass(renderScene);
     composer.addPass(bloomPass);
 
-    // Lights
     const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
 
-    // Add a nice bottom glow light
     const blueLight = new THREE.PointLight(0x00ffff, 2, 200);
     blueLight.position.set(0, -20, 50);
     scene.add(blueLight);

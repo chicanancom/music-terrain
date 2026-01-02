@@ -61,27 +61,67 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border: 1px solid #444;
+  padding: 0.8em 1.6em;
+  font-size: 1.1em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s ease;
+  margin: 0.5rem;
+  color: white;
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: #ff00cc;
+  background-color: #2a2a2a;
+  box-shadow: 0 0 15px rgba(255, 0, 204, 0.3);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid #ff00cc;
 }
 
 .sub {
   font-size: 0.9em;
   color: #888;
   margin-top: 2rem;
+}
+
+#track-info {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.9em;
+  z-index: 5;
+  transition: opacity 0.5s ease;
+}
+
+#track-info.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#track-link {
+  color: #ff00cc;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#track-link:hover {
+  text-decoration: underline;
+  color: #00ccff;
 }

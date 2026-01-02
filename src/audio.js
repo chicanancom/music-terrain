@@ -3,7 +3,7 @@ export let analyser;
 export let dataArray;
 let source;
 
-export function setupAudio(file) {
+export async function setupAudio(sourceInput) {
     if (audioContext) {
         audioContext.close();
     }
@@ -12,33 +12,38 @@ export function setupAudio(file) {
     audioContext = new AudioContext();
 
     analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512; // Controls resolution. 256 bars.
+    analyser.fftSize = 512;
 
     const bufferLength = analyser.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
 
-    const fileReader = new FileReader();
+    let arrayBuffer;
 
-    return new Promise((resolve, reject) => {
-        fileReader.onload = function (e) {
-            const arrayBuffer = e.target.result;
-            audioContext.decodeAudioData(arrayBuffer, (buffer) => {
-                if (source) source.disconnect();
+    if (typeof sourceInput === 'string') {
+        const response = await fetch(sourceInput);
+        arrayBuffer = await response.arrayBuffer();
+    } else {
+        const fileReader = new FileReader();
+        arrayBuffer = await new Promise((resolve, reject) => {
+            fileReader.onload = (e) => resolve(e.target.result);
+            fileReader.onerror = (e) => reject(e);
+            fileReader.readAsArrayBuffer(sourceInput);
+        });
+    }
 
-                source = audioContext.createBufferSource();
-                source.buffer = buffer;
-                source.loop = true;
+    const buffer = await audioContext.decodeAudioData(arrayBuffer);
 
-                source.connect(analyser);
-                analyser.connect(audioContext.destination);
+    if (source) source.disconnect();
 
-                source.start(0);
-                resolve({ audioContext, analyser, dataArray });
-            }, (err) => reject(err));
-        };
+    source = audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
 
-        fileReader.readAsArrayBuffer(file);
-    });
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    source.start(0);
+    return { audioContext, analyser, dataArray };
 }
 
 export function getAudioData() {
